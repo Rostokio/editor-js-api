@@ -17,7 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 @RestController
-public class TestController {
+public class ConvertController {
 
     @PostMapping(path = "/convert", produces = "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
     public ResponseEntity<byte[]> getData(@RequestBody String xhtml) throws Docx4JException, IOException {

@@ -1,0 +1,28 @@
+{
+  "index": {
+    "number_of_shards": "1",
+    "number_of_replicas": "0",
+    "analysis": {
+      "filter": {
+        "ru_stop": {
+          "type": "stop",
+          "stopwords": "_russian_"
+        },
+        "ru_stemmer": {
+          "type": "stemmer",
+          "language": "russian"
+        }
+      },
+      "analyzer": {
+        "main_analyzer": {
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "ru_stop",
+            "ru_stemmer"
+          ]
+        }
+      }
+    }
+  }
+}
