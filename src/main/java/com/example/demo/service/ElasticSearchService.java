@@ -16,7 +16,6 @@ import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ElasticSearchService {
 
     private final ElasticsearchOperations operations;

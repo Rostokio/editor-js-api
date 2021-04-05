@@ -16,18 +16,36 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://artifacts.alfresco.com/nexus/content/groups/public/"
+    }
 }
 
 dependencies {
-    implementation ('org.docx4j:docx4j-ImportXHTML:8.2.0') {
-        exclude group: 'org.docx4j', module: 'docx4j-samples-resources'
-    }
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+//    implementation ('org.docx4j:docx4j-ImportXHTML:8.2.0') {
+//        exclude group: 'org.docx4j', module: 'docx4j-samples-resources'
+//    }
+    implementation('org.springframework.boot:spring-boot-starter-web')
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    compile "org.springframework.data:spring-data-elasticsearch"
-    implementation group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
+    compile("org.springframework.data:spring-data-elasticsearch")
+//    compileOnly 'javax.servlet:servlet-api:2.5'
+    implementation('javax.persistence:javax.persistence-api:2.2')
+    implementation('org.docx4j:docx4j:6.1.2') {
+        [new Tuple('org.slf4j', 'slf4j-log4j12'),
+         new Tuple('log4j', 'log4j')].each {
+            exclude group: "${it.get(0)}", module: "${it.get(1)}"
+        }
+    }
+    implementation("org.apache.chemistry.opencmis:chemistry-opencmis-client-impl:0.10.0")
+    implementation("org.alfresco.cmis.client:alfresco-opencmis-extension:0.7")
+    implementation("com.google.oauth-client:google-oauth-client:1.16.0-rc")
+    implementation("com.google.http-client:google-http-client-jackson:1.16.0-rc")
+    compile('org.apache.tika:tika-parsers:1.1')
+    implementation('org.mortbay.jetty:jetty:6.1.26') {
+        exclude group: 'org.mortbay.jetty', module: 'servlet-api'
+    }
 }
 
 test {
