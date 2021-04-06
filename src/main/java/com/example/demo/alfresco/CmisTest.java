@@ -95,8 +95,7 @@ public class CmisTest extends BaseOnPremExample {
         deleteComments(objectId, commentId);
     }
 
-    public static void main(String[] args) throws IOException {
-        CmisTest cmisTest = new CmisTest();
-        cmisTest.startWorkflow();
+    public InputStream getProcesses() throws IOException {
+        return getProcess();
     }
 }

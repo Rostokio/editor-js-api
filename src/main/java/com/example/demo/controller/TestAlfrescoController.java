@@ -85,6 +85,16 @@ public class TestAlfrescoController {
         cmisTest.deleteComment(objectId, commentId);
     }
 
+    @GetMapping(path = "/processes")
+    public ResponseEntity<byte[]> getProcesses() throws IOException {
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcesses()));
+    }
+
+    @PostMapping(path = "/processes")
+    public ResponseEntity<byte[]> createProcess() throws IOException {
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcesses()));
+    }
+
     @ExceptionHandler(CmisObjectNotFoundException.class)
     public ResponseEntity<String> handleNotFoundException(Throwable ex, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);

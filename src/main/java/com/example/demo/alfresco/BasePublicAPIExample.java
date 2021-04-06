@@ -27,16 +27,16 @@ import java.util.Map;
 abstract public class BasePublicAPIExample {
     public static final String SITES_URL = "/public/alfresco/versions/1/sites/";
     public static final String NODES_URL = "/public/alfresco/versions/1/nodes/";
-    public static final String WORKFLOW_URL = "/public/workflow/versions/1/task/";
+    public static final String WORKFLOW_URL = "/public/workflow/versions/1/processes/";
     private String homeNetwork;
 
-    public void startWorkflow() throws IOException {
+    public InputStream getProcess() throws IOException {
         GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
                 getHomeNetwork() +
                 WORKFLOW_URL);
         HttpRequest request = getRequestFactory().buildGetRequest(commentUrl);
         HttpResponse response = request.execute();
-        System.out.println(response);
+        return response.getContent();
     }
 
 
