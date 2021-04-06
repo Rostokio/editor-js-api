@@ -93,6 +93,12 @@ public class TestAlfrescoController {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcess()));
     }
 
+    @PostMapping(path = "/processes")
+    public ResponseEntity<byte[]> createProcess() throws IOException {
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.createProcess()));
+    }
+
+
     @GetMapping(path = "/people")
     public ResponseEntity<PeopleList> getPeople() throws IOException {
         return ResponseEntity.ok(cmisTest.getPeople());

@@ -70,6 +70,15 @@ abstract public class BasePublicAPIExample {
         return response.getContent();
     }
 
+    public InputStream createProcess() throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                WORKFLOW_URL);
+        HttpRequest request = getRequestFactory().buildGetRequest(commentUrl);
+        HttpResponse response = request.execute();
+        return response.getContent();
+    }
+
 
     /**
      * Use the CMIS API to get a handle to the root folder of the
