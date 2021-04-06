@@ -2,6 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.CommentRequest;
 import com.example.demo.alfresco.CmisTest;
+import com.example.demo.model.People;
+import com.example.demo.model.PeopleList;
+import com.example.demo.model.Person;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.chemistry.opencmis.client.api.QueryResult;
@@ -41,7 +44,7 @@ public class TestAlfrescoController {
     @GetMapping(path = "/comments",
             params = {"id"})
     public ResponseEntity<byte[]> getDocumentComments(@RequestParam("id") String id) throws IOException {
-        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getComment(id)));
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getComments(id)));
     }
 
     @GetMapping
@@ -55,7 +58,7 @@ public class TestAlfrescoController {
 
     @PostMapping(path = "/comments")
     public void addComment(@RequestBody CommentRequest request) throws IOException {
-        cmisTest.addComment(request);
+        cmisTest.comment(request.getVersionSeriesId(), request.getCommentText());
     }
 
     @PostMapping
@@ -71,7 +74,7 @@ public class TestAlfrescoController {
     @PutMapping(path = "comments/{id}")
     public void updateComment(@PathVariable("id") String commentId,
                               @RequestBody CommentRequest comment) throws IOException {
-        cmisTest.updateComment(comment.getVersionSeriesId(), commentId, comment.getCommentText());
+        cmisTest.updateComments(comment.getVersionSeriesId(), commentId, comment.getCommentText());
     }
 
     @DeleteMapping(params = {"id", "allVersions"})
@@ -82,17 +85,27 @@ public class TestAlfrescoController {
     @DeleteMapping(path = "/comments", params = {"objectId", "commentId"})
     public void deleteComment(@RequestParam("objectId") String objectId,
                               @RequestParam("commentId") String commentId) throws IOException {
-        cmisTest.deleteComment(objectId, commentId);
+        cmisTest.deleteComments(objectId, commentId);
     }
 
     @GetMapping(path = "/processes")
     public ResponseEntity<byte[]> getProcesses() throws IOException {
-        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcesses()));
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcess()));
     }
 
-    @PostMapping(path = "/processes")
-    public ResponseEntity<byte[]> createProcess() throws IOException {
-        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcesses()));
+    @GetMapping(path = "/people")
+    public ResponseEntity<PeopleList> getPeople() throws IOException {
+        return ResponseEntity.ok(cmisTest.getPeople());
+    }
+
+    @PostMapping(path = "/people")
+    public ResponseEntity<People> createPerson(@RequestBody Person person) throws IOException {
+        return ResponseEntity.ok(cmisTest.createPerson(person));
+    }
+
+    @GetMapping(path = "/people/{id}")
+    public ResponseEntity<People> getPerson(@PathVariable("id") String id) throws IOException {
+        return ResponseEntity.ok(cmisTest.getPerson(id));
     }
 
     @ExceptionHandler(CmisObjectNotFoundException.class)

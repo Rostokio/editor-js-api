@@ -1,9 +1,6 @@
 package com.example.demo.alfresco;
 
-import com.example.demo.model.ContainerEntry;
-import com.example.demo.model.ContainerList;
-import com.example.demo.model.NetworkEntry;
-import com.example.demo.model.NetworkList;
+import com.example.demo.model.*;
 import com.example.demo.util.Config;
 import com.google.api.client.http.*;
 import org.apache.chemistry.opencmis.client.api.Document;
@@ -27,8 +24,42 @@ import java.util.Map;
 abstract public class BasePublicAPIExample {
     public static final String SITES_URL = "/public/alfresco/versions/1/sites/";
     public static final String NODES_URL = "/public/alfresco/versions/1/nodes/";
+    public static final String PEOPLE_URL = "/public/alfresco/versions/1/people/";
     public static final String WORKFLOW_URL = "/public/workflow/versions/1/processes/";
     private String homeNetwork;
+
+
+    public PeopleList getPeople() throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                PEOPLE_URL);
+        HttpRequest request = getRequestFactory().buildGetRequest(commentUrl);
+        return request.execute().parseAs(PeopleList.class);
+    }
+
+    public People getPerson(String id) throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                PEOPLE_URL +
+                id);
+        HttpRequest request = getRequestFactory().buildGetRequest(commentUrl);
+        return request.execute().parseAs(PeopleEntry.class).getEntry();
+    }
+
+    public People createPerson(Person person) throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                PEOPLE_URL);
+        HttpContent body = new ByteArrayContent("application/json",
+                ("{ \"id\": \"" + person.getId() + "\", " +
+                        "\"displayName\": \"" + person.getDisplayName() + "\", " +
+                        "\"firstName\": \"" + person.getFirstName() + "\", " +
+                        "\"lastName\": \"" + person.getLastName() + "\", " +
+                        "\"password\": \"" + person.getPassword() + "\", " +
+                        "\"email\": \"" + person.getEmail() + "\" }").getBytes());
+        HttpRequest request = getRequestFactory().buildPostRequest(commentUrl, body);
+        return request.execute().parseAs(PeopleEntry.class).getEntry();
+    }
 
     public InputStream getProcess() throws IOException {
         GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
@@ -288,4 +319,5 @@ abstract public class BasePublicAPIExample {
     abstract public Session getCmisSession();
 
     abstract public HttpRequestFactory getRequestFactory();
+
 }

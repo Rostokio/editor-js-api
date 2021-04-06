@@ -79,23 +79,4 @@ public class CmisTest extends BaseOnPremExample {
         cmisSession.delete(new ObjectIdImpl(objectId), allVersions);
     }
 
-    public void addComment(CommentRequest request) throws IOException {
-        comment(request.getVersionSeriesId(), request.getCommentText());
-    }
-
-    public InputStream getComment(String id) throws IOException {
-        return getComments(id);
-    }
-
-    public void updateComment(String objectId, String commentId, String content) throws IOException {
-        updateComments(objectId, commentId, content);
-    }
-
-    public void deleteComment(String objectId, String commentId) throws IOException {
-        deleteComments(objectId, commentId);
-    }
-
-    public InputStream getProcesses() throws IOException {
-        return getProcess();
-    }
 }
