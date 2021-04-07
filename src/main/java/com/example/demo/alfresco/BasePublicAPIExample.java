@@ -1,5 +1,6 @@
 package com.example.demo.alfresco;
 
+import com.example.demo.ItemRequest;
 import com.example.demo.model.*;
 import com.example.demo.util.Config;
 import com.google.api.client.http.*;
@@ -26,6 +27,7 @@ abstract public class BasePublicAPIExample {
     public static final String NODES_URL = "/public/alfresco/versions/1/nodes/";
     public static final String PEOPLE_URL = "/public/alfresco/versions/1/people/";
     public static final String WORKFLOW_URL = "/public/workflow/versions/1/processes/";
+    public static final String TASKS_URL = "/public/workflow/versions/1/tasks/";
     private String homeNetwork;
 
 
@@ -61,7 +63,7 @@ abstract public class BasePublicAPIExample {
         return request.execute().parseAs(PeopleEntry.class).getEntry();
     }
 
-    public InputStream getProcess() throws IOException {
+    public InputStream getProcesses() throws IOException {
         GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
                 getHomeNetwork() +
                 WORKFLOW_URL);
@@ -70,13 +72,114 @@ abstract public class BasePublicAPIExample {
         return response.getContent();
     }
 
+    public InputStream getProcess(Long id) throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                WORKFLOW_URL +
+                id);
+        HttpRequest request = getRequestFactory().buildGetRequest(commentUrl);
+        HttpResponse response = request.execute();
+        return response.getContent();
+    }
+
+    public InputStream getProcessItems(Long id) throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                WORKFLOW_URL +
+                id +
+                "/items");
+        HttpRequest request = getRequestFactory().buildGetRequest(commentUrl);
+        HttpResponse response = request.execute();
+        return response.getContent();
+    }
+
+    public void deleteProcessItem(Long processId, Long itemId) throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                WORKFLOW_URL +
+                processId +
+                "/items/" +
+                itemId);
+        HttpRequest request = getRequestFactory().buildDeleteRequest(commentUrl);
+        HttpResponse response = request.execute();
+    }
+
+    public InputStream createProcessItem(Long id, ItemRequest itemIdRequest) throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                WORKFLOW_URL +
+                id +
+                "/items");
+        HttpContent body = new ByteArrayContent("application/json",
+                ("{ \"id\": \"" + itemIdRequest.getId() + "\" " +
+                        "}").getBytes());
+        HttpRequest request = getRequestFactory().buildPostRequest(commentUrl, body);
+        HttpResponse response = request.execute();
+        return response.getContent();
+    }
+
+    public InputStream getTasks(Long id) throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                WORKFLOW_URL +
+                id +
+                "/tasks");
+        HttpRequest request = getRequestFactory().buildGetRequest(commentUrl);
+        HttpResponse response = request.execute();
+        return response.getContent();
+    }
+
+
+    public InputStream updateTask(Long taskId, String state) throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                TASKS_URL +
+                taskId +
+                "?select=state");
+        HttpContent body = new ByteArrayContent("application/json",
+                ("{\"state\": \"" + state + "\"}").getBytes());
+        HttpRequest request = getRequestFactory().buildPutRequest(commentUrl, body);
+        HttpResponse response = request.execute();
+        return response.getContent();
+    }
+
+    public InputStream updateTask(Long taskId, String state, String assignee) throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                TASKS_URL +
+                taskId +
+                "?select=state,assignee");
+        HttpContent body = new ByteArrayContent("application/json",
+                ("{\"state\": \"" + state + "\", " +
+                        "\"assignee\": \"" + assignee + "\"}").getBytes());
+        HttpRequest request = getRequestFactory().buildPutRequest(commentUrl, body);
+        HttpResponse response = request.execute();
+        return response.getContent();
+    }
+
     public InputStream createProcess() throws IOException {
         GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
                 getHomeNetwork() +
                 WORKFLOW_URL);
-        HttpRequest request = getRequestFactory().buildGetRequest(commentUrl);
+        HttpContent body = new ByteArrayContent("application/json",
+                ("[{ \"processDefinitionKey\": \"activitiReview\", " +
+                        "\"variables\": { " +
+                        "\"bpm_assignee\": \"admin\" " +
+                        "}}]").getBytes());
+        HttpRequest request = getRequestFactory().buildPostRequest(commentUrl, body);
         HttpResponse response = request.execute();
         return response.getContent();
+    }
+
+
+    public void deleteProcess(Long id) throws IOException {
+        GenericUrl commentUrl = new GenericUrl(getAlfrescoAPIUrl() +
+                getHomeNetwork() +
+                WORKFLOW_URL +
+                id);
+        HttpRequest request = getRequestFactory().buildDeleteRequest(commentUrl);
+        HttpResponse response = request.execute();
+        System.out.println("You deleted process: " + response.getContent());
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.CommentRequest;
+import com.example.demo.ItemRequest;
 import com.example.demo.alfresco.CmisTest;
 import com.example.demo.model.People;
 import com.example.demo.model.PeopleList;
@@ -42,7 +43,8 @@ public class TestAlfrescoController {
     }
 
     @GetMapping(path = "/comments",
-            params = {"id"})
+            params = {"id"},
+            produces = "application/json")
     public ResponseEntity<byte[]> getDocumentComments(@RequestParam("id") String id) throws IOException {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getComments(id)));
     }
@@ -71,8 +73,8 @@ public class TestAlfrescoController {
         return ResponseEntity.ok(cmisTest.updateDocument(file));
     }
 
-    @PutMapping(path = "comments/{id}")
-    public void updateComment(@PathVariable("id") String commentId,
+    @PutMapping(path = "comments", params = {"id"})
+    public void updateComment(@RequestParam("id") String commentId,
                               @RequestBody CommentRequest comment) throws IOException {
         cmisTest.updateComments(comment.getVersionSeriesId(), commentId, comment.getCommentText());
     }
@@ -88,14 +90,63 @@ public class TestAlfrescoController {
         cmisTest.deleteComments(objectId, commentId);
     }
 
-    @GetMapping(path = "/processes")
+    @GetMapping(path = "/processes", produces = "application/json")
     public ResponseEntity<byte[]> getProcesses() throws IOException {
-        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcess()));
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcesses()));
     }
 
-    @PostMapping(path = "/processes")
+    @GetMapping(path = "/processes/{id}", produces = "application/json")
+    public ResponseEntity<byte[]> getProcess(@PathVariable("id") Long id) throws IOException {
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcess(id)));
+    }
+
+    @GetMapping(path = "/processes/{id}/items", produces = "application/json")
+    public ResponseEntity<byte[]> getProcessItems(@PathVariable("id") Long id) throws IOException {
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcessItems(id)));
+    }
+
+    @PostMapping(path = "/processes/{id}/items", produces = "application/json")
+    public ResponseEntity<byte[]> getProcessItems(@PathVariable("id") Long id,
+                                                  @RequestBody ItemRequest request) throws IOException {
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.createProcessItem(id, request)));
+    }
+
+    @DeleteMapping(path = "/processes/{processId}/items/{itemId}")
+    public void deleteProcessItem(@PathVariable("processId") Long processId,
+                                                  @PathVariable("itemId") Long itemId) throws IOException {
+        cmisTest.deleteProcessItem(processId, itemId);
+    }
+
+    @GetMapping(path = "/processes/{id}/tasks", produces = "application/json")
+    public ResponseEntity<byte[]> getTasksForProcess(@PathVariable("id") Long id) throws IOException {
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getTasks(id)));
+    }
+
+    @PutMapping(path = "/tasks/{taskId}",
+            params={"state, assignee"},
+            produces = "application/json")
+    public ResponseEntity<byte[]> updateTasksForProcess(@PathVariable("taskId") Long taskId,
+                                                        @RequestParam("state") String state,
+                                                        @RequestParam("assignee") String assignee) throws IOException {
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.updateTask(taskId, state, assignee)));
+    }
+
+    @PutMapping(path = "/tasks/{taskId}",
+            params={"state"},
+            produces = "application/json")
+    public ResponseEntity<byte[]> updateTasksForProcess(@PathVariable("taskId") Long taskId,
+                                                        @RequestParam("state") String state) throws IOException {
+        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.updateTask(taskId, state)));
+    }
+
+    @PostMapping(path = "/processes", produces = "application/json")
     public ResponseEntity<byte[]> createProcess() throws IOException {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.createProcess()));
+    }
+
+    @DeleteMapping(path = "/processes/{id}")
+    public void deleteProcess(@PathVariable("id") Long id) throws IOException {
+        cmisTest.deleteProcess(id);
     }
 
 
