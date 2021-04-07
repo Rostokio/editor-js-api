@@ -22,15 +22,17 @@ repositories {
 }
 
 dependencies {
-//    implementation ('org.docx4j:docx4j-ImportXHTML:8.2.0') {
-//        exclude group: 'org.docx4j', module: 'docx4j-samples-resources'
-//    }
+    implementation ('org.docx4j:docx4j-ImportXHTML:8.2.0') {
+        exclude group: 'org.docx4j', module: 'docx4j-samples-resources'
+    }
+    implementation "io.swagger:swagger-annotations:1.5.21"
+    implementation "io.springfox:springfox-swagger-ui:2.9.2"
+    implementation "io.springfox:springfox-swagger2:2.9.2"
     implementation('org.springframework.boot:spring-boot-starter-web')
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     compile("org.springframework.data:spring-data-elasticsearch")
-//    compileOnly 'javax.servlet:servlet-api:2.5'
     implementation('javax.persistence:javax.persistence-api:2.2')
     implementation('org.docx4j:docx4j:6.1.2') {
         [new Tuple('org.slf4j', 'slf4j-log4j12'),

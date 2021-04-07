@@ -6,6 +6,9 @@ import com.example.demo.alfresco.CmisTest;
 import com.example.demo.model.People;
 import com.example.demo.model.PeopleList;
 import com.example.demo.model.Person;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.chemistry.opencmis.client.api.QueryResult;
@@ -26,30 +29,38 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/alfresco")
 @Slf4j
+@Api("Alfresco Controller")
 public class TestAlfrescoController {
 
     private final CmisTest cmisTest;
 
     @GetMapping(params = {"id"},
             produces = "application/msword")
-    public ResponseEntity<byte[]> getDocument(@RequestParam("id") String id) throws IOException {
+    @ApiOperation("Скачать документ")
+    public ResponseEntity<byte[]> getDocument(
+            @ApiParam("id документа") @RequestParam("id") String id) throws IOException {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.downloadDocument(id)));
     }
 
     @GetMapping(path = "/properties",
             params = {"id"})
-    public ResponseEntity<List<PropertyData<?>>> getDocumentProperties(@RequestParam("id") String id) throws IOException {
+    @ApiOperation("Получить свойства документа")
+    public ResponseEntity<List<PropertyData<?>>> getDocumentProperties(
+            @ApiParam("id документа") @RequestParam("id") String id) {
         return ResponseEntity.ok(cmisTest.getDocumentProperties(id));
     }
 
     @GetMapping(path = "/comments",
             params = {"id"},
             produces = "application/json")
-    public ResponseEntity<byte[]> getDocumentComments(@RequestParam("id") String id) throws IOException {
+    @ApiOperation("Получить комментарии к документу")
+    public ResponseEntity<byte[]> getDocumentComments(
+            @ApiParam("id документа") @RequestParam("id") String id) throws IOException {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getComments(id)));
     }
 
     @GetMapping
+    @ApiOperation("Получить список всех документов")
     public ResponseEntity<List<List<PropertyData<?>>>> getDocuments() {
         List<List<PropertyData<?>>> list = new ArrayList<>();
         for (QueryResult result : cmisTest.getDocuments()) {
@@ -59,109 +70,132 @@ public class TestAlfrescoController {
     }
 
     @PostMapping(path = "/comments")
+    @ApiOperation("Добавить комментарий к документу")
     public void addComment(@RequestBody CommentRequest request) throws IOException {
-        cmisTest.comment(request.getVersionSeriesId(), request.getCommentText());
+        cmisTest.comment(request.getId(), request.getCommentText());
     }
 
     @PostMapping
-    public ResponseEntity<String> addDocument(@RequestParam("doc") MultipartFile file) throws IOException {
+    @ApiOperation("Загрузить новый документ")
+    public ResponseEntity<String> addDocument(
+            @ApiParam("Файл") @RequestParam("doc") MultipartFile file) throws IOException {
         return ResponseEntity.ok(cmisTest.addDocument(file));
     }
 
     @PutMapping
-    public ResponseEntity<String> updateDocument(@RequestParam("doc") MultipartFile file) throws IOException {
+    @ApiOperation("Загрузить новую версию документа")
+    public ResponseEntity<String> updateDocument(
+            @ApiParam("Файл") @RequestParam("doc") MultipartFile file) throws IOException {
         return ResponseEntity.ok(cmisTest.updateDocument(file));
     }
 
     @PutMapping(path = "comments", params = {"id"})
-    public void updateComment(@RequestParam("id") String commentId,
+    @ApiOperation("Обновить комментарий")
+    public void updateComment(@ApiParam("id комментария") @RequestParam("id") String commentId,
                               @RequestBody CommentRequest comment) throws IOException {
-        cmisTest.updateComments(comment.getVersionSeriesId(), commentId, comment.getCommentText());
+        cmisTest.updateComments(comment.getId(), commentId, comment.getCommentText());
     }
 
     @DeleteMapping(params = {"id", "allVersions"})
-    public void deleteDocument(@RequestParam("id") String id, @RequestParam("allVersions") Boolean allVersions) {
+    @ApiOperation("Удалить документ")
+    public void deleteDocument(
+            @ApiParam("id документа") @RequestParam("id") String id,
+            @ApiParam("Удаление всех версий") @RequestParam("allVersions") Boolean allVersions) {
         cmisTest.deleteDocument(id, allVersions);
     }
 
     @DeleteMapping(path = "/comments", params = {"objectId", "commentId"})
-    public void deleteComment(@RequestParam("objectId") String objectId,
-                              @RequestParam("commentId") String commentId) throws IOException {
+    @ApiOperation("Удалить комментарий")
+    public void deleteComment(@ApiParam("id документа") @RequestParam("objectId") String objectId,
+                              @ApiParam("id комментария") @RequestParam("commentId") String commentId) throws IOException {
         cmisTest.deleteComments(objectId, commentId);
     }
 
     @GetMapping(path = "/processes", produces = "application/json")
+    @ApiOperation("Получить все существующие процессы (workflow)")
     public ResponseEntity<byte[]> getProcesses() throws IOException {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcesses()));
     }
 
     @GetMapping(path = "/processes/{id}", produces = "application/json")
-    public ResponseEntity<byte[]> getProcess(@PathVariable("id") Long id) throws IOException {
+    @ApiOperation("Получить определенный процесс (workflow)")
+    public ResponseEntity<byte[]> getProcess(@ApiParam("workflow id") @PathVariable("id") Long id) throws IOException {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcess(id)));
     }
 
     @GetMapping(path = "/processes/{id}/items", produces = "application/json")
-    public ResponseEntity<byte[]> getProcessItems(@PathVariable("id") Long id) throws IOException {
+    @ApiOperation("Получить все документы, прикрепленные к процессу")
+    public ResponseEntity<byte[]> getProcessItems(
+            @ApiParam("workflow id") @PathVariable("id") Long id) throws IOException {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getProcessItems(id)));
     }
 
     @PostMapping(path = "/processes/{id}/items", produces = "application/json")
-    public ResponseEntity<byte[]> getProcessItems(@PathVariable("id") Long id,
+    @ApiOperation("Прикрепить документ к процессу")
+    public ResponseEntity<byte[]> getProcessItems(@ApiParam("workflow id") @PathVariable("id") Long id,
                                                   @RequestBody ItemRequest request) throws IOException {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.createProcessItem(id, request)));
     }
 
     @DeleteMapping(path = "/processes/{processId}/items/{itemId}")
-    public void deleteProcessItem(@PathVariable("processId") Long processId,
-                                                  @PathVariable("itemId") Long itemId) throws IOException {
+    @ApiOperation("Отвязать документ от процесса")
+    public void deleteProcessItem(@ApiParam("workflow id") @PathVariable("processId") Long processId,
+                                  @ApiParam("id документа") @PathVariable("itemId") Long itemId) throws IOException {
         cmisTest.deleteProcessItem(processId, itemId);
     }
 
     @GetMapping(path = "/processes/{id}/tasks", produces = "application/json")
-    public ResponseEntity<byte[]> getTasksForProcess(@PathVariable("id") Long id) throws IOException {
+    @ApiOperation("Получить задания внутри процесса")
+    public ResponseEntity<byte[]> getTasksForProcess(@ApiParam("workflow id") @PathVariable("id") Long id) throws IOException {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.getTasks(id)));
     }
 
     @PutMapping(path = "/tasks/{taskId}",
-            params={"state, assignee"},
             produces = "application/json")
-    public ResponseEntity<byte[]> updateTasksForProcess(@PathVariable("taskId") Long taskId,
+    @ApiOperation("Обновить статус задачи внутри процесса")
+    public ResponseEntity<byte[]> updateTasksForProcess(@ApiParam("id задачи") @PathVariable("taskId") Long taskId,
+                                                        @ApiParam(value = "Состояние, в которое переводится задача",
+                                                        allowableValues = "claimed, " +
+                                                                "delegated, " +
+                                                                "unclaimed, resolved, completed")
                                                         @RequestParam("state") String state,
-                                                        @RequestParam("assignee") String assignee) throws IOException {
+                                                        @ApiParam(value = "id человека, принимающего задачу")
+                                                            @RequestParam(value = "assignee", required = false)
+                                                                    String assignee) throws IOException {
+        if (assignee == null) {
+            return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.updateTask(taskId, state)));
+        }
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.updateTask(taskId, state, assignee)));
     }
 
-    @PutMapping(path = "/tasks/{taskId}",
-            params={"state"},
-            produces = "application/json")
-    public ResponseEntity<byte[]> updateTasksForProcess(@PathVariable("taskId") Long taskId,
-                                                        @RequestParam("state") String state) throws IOException {
-        return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.updateTask(taskId, state)));
-    }
-
     @PostMapping(path = "/processes", produces = "application/json")
+    @ApiOperation("Создать новый процесс review (workflow) (захардкожено на имя админа)")
     public ResponseEntity<byte[]> createProcess() throws IOException {
         return ResponseEntity.ok(IOUtils.toByteArray(cmisTest.createProcess()));
     }
 
     @DeleteMapping(path = "/processes/{id}")
-    public void deleteProcess(@PathVariable("id") Long id) throws IOException {
+    @ApiOperation("Удалить процесс (workflow)")
+    public void deleteProcess(@ApiParam("workflow id") @PathVariable("id") Long id) throws IOException {
         cmisTest.deleteProcess(id);
     }
 
 
     @GetMapping(path = "/people")
+    @ApiOperation("Получить список пользователей")
     public ResponseEntity<PeopleList> getPeople() throws IOException {
         return ResponseEntity.ok(cmisTest.getPeople());
     }
 
     @PostMapping(path = "/people")
+    @ApiOperation("Создать нового пользователя")
     public ResponseEntity<People> createPerson(@RequestBody Person person) throws IOException {
         return ResponseEntity.ok(cmisTest.createPerson(person));
     }
 
     @GetMapping(path = "/people/{id}")
-    public ResponseEntity<People> getPerson(@PathVariable("id") String id) throws IOException {
+    @ApiOperation("Получить определенного пользователя")
+    public ResponseEntity<People> getPerson(@ApiParam("id пользователя") @PathVariable("id") String id) throws IOException {
         return ResponseEntity.ok(cmisTest.getPerson(id));
     }
 
